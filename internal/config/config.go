@@ -24,17 +24,53 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
+type Config struct {
+	ServiceName string `json:"service_name" validate:"required"`
+}
+
 var (
+	log       *slog.Logger
+	shutdowns sync.Map
+	validate  = validator.New(validator.WithRequiredStructEnabled())
+	C         Config
+)
+
+func initLogger() {
 	log = slog.New(logx.NewHandler(slog.NewJSONHandler(
 		os.Stderr,
 		&slog.HandlerOptions{Level: slog.LevelDebug},
 	)))
-	validate = validator.New(
-		validator.WithRequiredStructEnabled(),
-	)
-	shutdowns sync.Map
-	C         Config
-)
+	slog.SetDefault(log)
+}
+
+func initConfig() {
+	k := koanf.New(".")
+	if err := k.Load(file.Provider("etc/config.toml"), toml.Parser()); err != nil {
+		panic(err)
+	}
+
+	err := k.UnmarshalWithConf("", nil, koanf.UnmarshalConf{
+		Tag: "json",
+		DecoderConfig: &mapstructure.DecoderConfig{
+			Result:  &C,
+			TagName: "json",
+			DecodeHook: mapstructure.ComposeDecodeHookFunc(
+				mapstructure.StringToTimeDurationHookFunc(),
+				mapstructure.TextUnmarshallerHookFunc(),
+			),
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	err = validate.Struct(C)
+	if err != nil {
+		panic(err)
+	}
+
+	log.Info("service config", "config", C)
+}
 
 func initTracer() {
 	err := os.MkdirAll("run", 0o750)
@@ -112,38 +148,8 @@ func Shutdown() {
 	wg.Wait()
 }
 
-type Config struct {
-	ServiceName string `json:"service_name" validate:"required"`
-}
-
 func init() {
-	slog.SetDefault(log)
-	k := koanf.New(".")
-	if err := k.Load(file.Provider("etc/config.toml"), toml.Parser()); err != nil {
-		panic(err)
-	}
-
-	err := k.UnmarshalWithConf("", nil, koanf.UnmarshalConf{
-		Tag: "json",
-		DecoderConfig: &mapstructure.DecoderConfig{
-			Result:  &C,
-			TagName: "json",
-			DecodeHook: mapstructure.ComposeDecodeHookFunc(
-				mapstructure.StringToTimeDurationHookFunc(),
-				mapstructure.TextUnmarshallerHookFunc(),
-			),
-		},
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	err = validate.Struct(C)
-	if err != nil {
-		panic(err)
-	}
-
-	log.Info("service config", "config", C)
-
+	initLogger()
+	initConfig()
 	initTracer()
 }
