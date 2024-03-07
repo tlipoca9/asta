@@ -1,9 +1,10 @@
 package server
 
 import (
+	"log/slog"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/tlipoca9/asta/internal/database"
-	"log/slog"
 )
 
 type FiberServer struct {

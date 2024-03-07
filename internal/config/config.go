@@ -2,11 +2,19 @@ package config
 
 import (
 	"context"
-	validator "github.com/go-playground/validator/v10"
+	"fmt"
+	"log/slog"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
+	"time"
+
+	"github.com/go-playground/validator/v10"
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/file"
-	koanf "github.com/knadh/koanf/v2"
+	"github.com/knadh/koanf/v2"
 	"github.com/tlipoca9/asta/pkg/logx"
 	"go.opentelemetry.io/otel"
 	stdout "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
@@ -14,8 +22,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
-	"log/slog"
-	"os"
 )
 
 var (
@@ -26,16 +32,16 @@ var (
 	validate = validator.New(
 		validator.WithRequiredStructEnabled(),
 	)
-	tp *sdktrace.TracerProvider
-	C  Config
+	shutdowns sync.Map
+	C         Config
 )
 
 func initTracer() {
-	err := os.MkdirAll("run", 0750)
+	err := os.MkdirAll("run", 0o750)
 	if err != nil {
 		panic(err)
 	}
-	out, err := os.OpenFile("run/trace.log", os.O_WRONLY|os.O_CREATE, 0644)
+	out, err := os.OpenFile("run/trace.log", os.O_WRONLY|os.O_CREATE, 0o644)
 	if err != nil {
 		panic(err)
 	}
@@ -43,7 +49,7 @@ func initTracer() {
 	if err != nil {
 		panic(err)
 	}
-	tp = sdktrace.NewTracerProvider(
+	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
 		sdktrace.WithBatcher(exporter),
 		sdktrace.WithResource(
@@ -54,12 +60,56 @@ func initTracer() {
 	)
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+
+	RegisterShutdown("tracer-provider", tp.Shutdown)
 }
 
-func Shutdown(ctx context.Context) {
-	if err := tp.Shutdown(ctx); err != nil {
-		log.Error("shutting down tracer provider", "error", err)
+func RegisterShutdown(name string, fn any) {
+	_, found := shutdowns.Load(name)
+	for found {
+		name = fmt.Sprintf("%s-%d", name, time.Now().Unix())
+		_, found = shutdowns.Load(name)
 	}
+	shutdowns.Store(name, fn)
+}
+
+func Shutdown() {
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		ch := make(chan os.Signal, 1)
+		signal.Notify(ch, syscall.SIGINT, syscall.SIGKILL, syscall.SIGTERM)
+
+		s := <-ch
+		log.Info("catch exit signal", slog.String("signal", s.String()))
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		var wgg sync.WaitGroup
+		shutdowns.Range(func(k, v any) bool {
+			wgg.Add(1)
+			go func() {
+				defer wgg.Done()
+				var err error
+				switch fn := v.(type) {
+				case func(context.Context) error:
+					err = fn(ctx)
+				case func() error:
+					err = fn()
+				}
+				if err != nil {
+					log.Error("shutdown failed", "name", k, "error", err)
+				} else {
+					log.Info("shutdown success", "name", k)
+				}
+			}()
+			return true
+		})
+		wgg.Wait()
+	}()
+	wg.Wait()
 }
 
 type Config struct {

@@ -1,12 +1,13 @@
 package server
 
 import (
+	"log/slog"
+
 	"github.com/gofiber/contrib/otelfiber"
 	"github.com/gofiber/fiber/v2"
 	"github.com/tlipoca9/asta/internal/handler"
 	"github.com/tlipoca9/asta/pkg/logx"
 	"go.opentelemetry.io/otel"
-	"log/slog"
 )
 
 func (s *FiberServer) RegisterFiberMiddlewares() {

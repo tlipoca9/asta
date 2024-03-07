@@ -1,17 +1,14 @@
 package main
 
 import (
-	"context"
-	"github.com/tlipoca9/asta/internal/config"
 	"os"
 
+	"github.com/tlipoca9/asta/internal/config"
 	"github.com/tlipoca9/asta/internal/server"
 	"github.com/urfave/cli/v2"
 )
 
 func main() {
-	defer config.Shutdown(context.Background())
-
 	app := &cli.App{
 		Name: "asta",
 		Commands: []*cli.Command{
@@ -20,14 +17,18 @@ func main() {
 				Action: func(c *cli.Context) error {
 					s := server.New()
 					s.RegisterFiberRoutes()
+					config.RegisterShutdown("fiber-server", s.Shutdown)
 					return s.Listen(":8080")
 				},
 			},
 		},
 	}
 
-	if err := app.Run(os.Args); err != nil {
-		panic(err)
-	}
+	go func() {
+		if err := app.Run(os.Args); err != nil {
+			panic(err)
+		}
+	}()
 
+	config.Shutdown()
 }
