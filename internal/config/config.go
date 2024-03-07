@@ -17,7 +17,6 @@ import (
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/v2"
-	"github.com/tlipoca9/asta/pkg/logx"
 	"go.opentelemetry.io/otel"
 	stdout "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
@@ -48,10 +47,10 @@ var (
 )
 
 func initLogger() {
-	log = slog.New(logx.NewHandler(slog.NewJSONHandler(
+	log = slog.New(slog.NewJSONHandler(
 		os.Stderr,
 		&slog.HandlerOptions{Level: slog.LevelDebug},
-	)))
+	))
 	slog.SetDefault(log)
 }
 

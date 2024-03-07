@@ -7,37 +7,6 @@ import (
 	"log/slog"
 )
 
-var _ slog.Handler = (*ContextHandler)(nil)
-
-type ContextHandler struct {
-	h slog.Handler
-}
-
-func (c ContextHandler) Enabled(ctx context.Context, level slog.Level) bool {
-	return c.h.Enabled(ctx, level)
-}
-
-func (c ContextHandler) Handle(ctx context.Context, record slog.Record) error {
-	record.AddAttrs(ContextAttrs(ctx)...)
-	return c.h.Handle(ctx, record)
-}
-
-func (c ContextHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
-	c.h = c.h.WithAttrs(attrs)
-	return c
-}
-
-func (c ContextHandler) WithGroup(name string) slog.Handler {
-	c.h = c.h.WithGroup(name)
-	return c
-}
-
-func NewHandler(handler slog.Handler) slog.Handler {
-	return ContextHandler{
-		h: handler,
-	}
-}
-
 type ctxKey int
 
 const argsKey ctxKey = 1
