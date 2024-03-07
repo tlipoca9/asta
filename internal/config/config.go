@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/tlipoca9/asta/pkg/utils"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/knadh/koanf/parsers/toml"
@@ -25,7 +27,8 @@ import (
 )
 
 type Config struct {
-	ServiceName string `json:"service_name,omitempty" validate:"required"`
+	ServiceName     string        `json:"service_name,omitempty" validate:"required"`
+	ShutdownTimeout time.Duration `json:"shutdown_timeout,omitempty" validate:"required"`
 
 	Database struct {
 		Enable   bool   `json:"enable,omitempty"`
@@ -129,7 +132,7 @@ func Shutdown() {
 		s := <-ch
 		log.Info("catch exit signal", slog.String("signal", s.String()))
 
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), C.ShutdownTimeout)
 		defer cancel()
 
 		var wgg sync.WaitGroup
@@ -138,16 +141,16 @@ func Shutdown() {
 			go func() {
 				defer wgg.Done()
 				var err error
-				log = log.With("name", k)
+				log := log.With("name", k)
 				switch fn := v.(type) {
 				case func(context.Context) error:
 					err = fn(ctx)
-				case func() error:
-					err = fn()
 				case func(context.Context):
-					fn(ctx)
+					err = utils.ContextFn(ctx, func() { fn(ctx) })
+				case func() error:
+					err = utils.ContextFnE(ctx, fn)
 				case func():
-					fn()
+					err = utils.ContextFn(ctx, fn)
 				default:
 					log.Warn("unknown shutdown function type, skip")
 				}

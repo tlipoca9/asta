@@ -1,4 +1,5 @@
 service_name = "asta"
+shutdown_timeout = "5s"
 
 [database]
 enable = false

@@ -6,7 +6,6 @@ import (
 	"github.com/gofiber/contrib/otelfiber"
 	"github.com/gofiber/fiber/v2"
 	"github.com/tlipoca9/asta/internal/handler"
-	"github.com/tlipoca9/asta/pkg/logx"
 	"go.opentelemetry.io/otel"
 )
 
@@ -26,13 +25,12 @@ func (s *FiberServer) HelloWorldHandler() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, span := tracer.Start(c.UserContext(), "handler")
 		defer span.End()
-		ctx = logx.AddToContext(
-			ctx,
+		log := s.log.With(
 			slog.String("trace_id", span.SpanContext().TraceID().String()),
 			slog.String("span_id", span.SpanContext().SpanID().String()),
 		)
-		s.log.InfoContext(ctx, "start")
-		defer s.log.InfoContext(ctx, "end")
+		log.InfoContext(ctx, "start")
+		defer log.InfoContext(ctx, "end")
 
 		h := handler.NewHealthHandler(
 			handler.NewNamedHealthier("database", s.db),
