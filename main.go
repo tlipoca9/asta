@@ -16,8 +16,8 @@ func main() {
 				Name: "serve",
 				Action: func(c *cli.Context) error {
 					s := server.New()
-					s.RegisterFiberRoutes()
-					config.RegisterShutdown("fiber-server", s.Shutdown)
+					s.RegisterRoutes()
+					config.RegisterShutdown("server", s.Shutdown)
 					return s.Listen(config.C.Service.Addr)
 				},
 			},

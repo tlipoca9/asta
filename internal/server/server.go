@@ -9,14 +9,14 @@ import (
 	"github.com/tlipoca9/asta/internal/database"
 )
 
-type FiberServer struct {
+type Server struct {
 	*fiber.App
 
 	log *slog.Logger
 	db  database.Service
 }
 
-func New() *FiberServer {
+func New() *Server {
 	var db database.Service
 	if config.C.Database.Enable {
 		db = database.New(
@@ -31,7 +31,7 @@ func New() *FiberServer {
 		)
 	}
 
-	server := &FiberServer{
+	server := &Server{
 		App: fiber.New(),
 		log: slog.Default(),
 		db:  db,

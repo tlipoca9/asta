@@ -9,18 +9,18 @@ import (
 	"go.opentelemetry.io/otel"
 )
 
-func (s *FiberServer) RegisterFiberMiddlewares() {
+func (s *Server) RegisterMiddlewares() {
 	s.App.Use(otelfiber.Middleware())
 }
 
-func (s *FiberServer) RegisterFiberRoutes() {
-	s.RegisterFiberMiddlewares()
+func (s *Server) RegisterRoutes() {
+	s.RegisterMiddlewares()
 
 	s.App.Get("/", s.HelloWorldHandler())
 	s.App.Get("/health", s.healthHandler)
 }
 
-func (s *FiberServer) HelloWorldHandler() fiber.Handler {
+func (s *Server) HelloWorldHandler() fiber.Handler {
 	tracer := otel.Tracer("hello-world")
 	return func(c *fiber.Ctx) error {
 		ctx, span := tracer.Start(c.UserContext(), "handler")
@@ -42,7 +42,7 @@ func (s *FiberServer) HelloWorldHandler() fiber.Handler {
 	}
 }
 
-func (s *FiberServer) healthHandler(c *fiber.Ctx) error {
+func (s *Server) healthHandler(c *fiber.Ctx) error {
 	h := handler.NewHealthHandler(
 		handler.NewNamedHealthier("database", s.db),
 	)
