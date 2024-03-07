@@ -1,36 +1,41 @@
 package handler
 
-type Healther interface {
+import "github.com/tlipoca9/errors"
+
+type Healthier interface {
 	Health() error
 }
 
-type NamedHealther interface {
+type NamedHealthier interface {
 	Name() string
-	Healther
+	Healthier
 }
 
-type namedHealther struct {
+type namedHealthier struct {
 	name string
-	h    Healther
+	h    Healthier
 }
 
-func (n *namedHealther) Name() string {
+func (n *namedHealthier) Name() string {
 	return n.name
 }
 
-func (n *namedHealther) Health() error {
+func (n *namedHealthier) Health() error {
+	if n.h == nil {
+		return errors.New("healthier is nil")
+	}
 	return n.h.Health()
 }
 
-func NewNamedHealther(name string, h Healther) NamedHealther {
-	return &namedHealther{name: name, h: h}
+func NewNamedHealthier(name string, h Healthier) NamedHealthier {
+	return &namedHealthier{name: name, h: h}
 }
 
 type HealthHandler struct {
-	svc []NamedHealther
+	svc []NamedHealthier
 }
 
-func NewHealthHandler(svc ...NamedHealther) *HealthHandler {
+func NewHealthHandler(svc ...NamedHealthier) *HealthHandler {
 	return &HealthHandler{svc: svc}
 }
 

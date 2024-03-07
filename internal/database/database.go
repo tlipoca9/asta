@@ -3,9 +3,9 @@ package database
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
-	"github.com/tlipoca9/asta/pkg/logx"
 	"github.com/tlipoca9/errors"
 	"github.com/tlipoca9/leaf/gormleaf"
 	"gorm.io/driver/mysql"
@@ -17,7 +17,8 @@ type Service interface {
 }
 
 type service struct {
-	db *gorm.DB
+	log *slog.Logger
+	db  *gorm.DB
 }
 
 type Config struct {
@@ -28,20 +29,20 @@ type Config struct {
 	Host     string
 }
 
-func New(conf Config) Service {
-	log := logx.New()
-
+func New(log *slog.Logger, conf Config) Service {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", conf.Username, conf.Password, conf.Host, conf.Port, conf.DBName)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		DisableAutomaticPing: true,
 		Logger:               gormleaf.NewSlogLoggerBuilder().Logger(log).Build(),
 	})
 	if err != nil {
-		log.Error("failed to connect to database", "error", err, "dsn", dsn)
 		panic(err)
 	}
 
-	s := &service{db: db}
+	s := &service{
+		log: log,
+		db:  db,
+	}
 	return s
 }
 

@@ -1,54 +1,60 @@
 package logx
 
+// see https://github.com/golang/go/issues/56345#issuecomment-1435247981
+
 import (
 	"context"
 	"log/slog"
 )
 
+var _ slog.Handler = (*ContextHandler)(nil)
+
+type ContextHandler struct {
+	h slog.Handler
+}
+
+func (c ContextHandler) Enabled(ctx context.Context, level slog.Level) bool {
+	return c.h.Enabled(ctx, level)
+}
+
+func (c ContextHandler) Handle(ctx context.Context, record slog.Record) error {
+	record.AddAttrs(ContextAttrs(ctx)...)
+	return c.h.Handle(ctx, record)
+}
+
+func (c ContextHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	c.h = c.h.WithAttrs(attrs)
+	return c
+}
+
+func (c ContextHandler) WithGroup(name string) slog.Handler {
+	c.h = c.h.WithGroup(name)
+	return c
+}
+
+func NewHandler(handler slog.Handler) slog.Handler {
+	return ContextHandler{
+		h: handler,
+	}
+}
+
 type ctxKey int
 
-const loggerKey ctxKey = 1
+const argsKey ctxKey = 1
 
-type loggerHook func(context.Context, *slog.Logger) *slog.Logger
-
-var hooks map[string]loggerHook
-
-func RegisterHook(name string, hook loggerHook) {
-	if hook == nil {
-		panic("logx: RegisterHook hook is nil")
+func AddToContext(ctx context.Context, args ...slog.Attr) context.Context {
+	if len(args) == 0 {
+		return ctx
 	}
-
-	if hooks == nil {
-		hooks = make(map[string]loggerHook)
-	}
-	hooks[name] = hook
+	attrs := ContextAttrs(ctx)
+	attrs = append(attrs, args...)
+	return context.WithValue(ctx, argsKey, attrs)
 }
 
-func New(ctx ...context.Context) *slog.Logger {
-	if len(ctx) > 1 {
-		panic("logx: New received more than one context")
-	}
-
-	ctx0 := context.Background()
-	if len(ctx) == 1 {
-		ctx0 = ctx[0]
-	}
-
-	l := Context(ctx0)
-	for _, hook := range hooks {
-		l = hook(ctx0, l)
-	}
-	return l
-}
-
-func Context(ctx context.Context) *slog.Logger {
-	l, ok := ctx.Value(loggerKey).(*slog.Logger)
+func ContextAttrs(ctx context.Context) []slog.Attr {
+	attrs, ok := ctx.Value(argsKey).([]slog.Attr)
 	if !ok {
-		return slog.Default()
+		return nil
 	}
-	return l
-}
-
-func WithContext(ctx context.Context, l *slog.Logger) context.Context {
-	return context.WithValue(ctx, loggerKey, l)
+	return attrs
 }

@@ -1,19 +1,16 @@
 package main
 
 import (
-	"log/slog"
+	"context"
+	"github.com/tlipoca9/asta/internal/config"
 	"os"
 
 	"github.com/tlipoca9/asta/internal/server"
 	"github.com/urfave/cli/v2"
 )
 
-func init() {
-	log := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	slog.SetDefault(log)
-}
-
 func main() {
+	defer config.Shutdown(context.Background())
 
 	app := &cli.App{
 		Name: "asta",
