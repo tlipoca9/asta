@@ -1,4 +1,6 @@
-service_name = "asta"
+[service]
+name = "asta"
+addr = ":8080"
 shutdown_timeout = "5s"
 
 [database]

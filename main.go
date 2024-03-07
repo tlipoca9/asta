@@ -10,7 +10,7 @@ import (
 
 func main() {
 	app := &cli.App{
-		Name: config.C.ServiceName,
+		Name: config.C.Service.Name,
 		Commands: []*cli.Command{
 			{
 				Name: "serve",
@@ -18,7 +18,7 @@ func main() {
 					s := server.New()
 					s.RegisterFiberRoutes()
 					config.RegisterShutdown("fiber-server", s.Shutdown)
-					return s.Listen(":8080")
+					return s.Listen(config.C.Service.Addr)
 				},
 			},
 		},

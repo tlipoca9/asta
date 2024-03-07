@@ -26,8 +26,11 @@ import (
 )
 
 type Config struct {
-	ServiceName     string        `json:"service_name,omitempty" validate:"required"`
-	ShutdownTimeout time.Duration `json:"shutdown_timeout,omitempty" validate:"required"`
+	Service struct {
+		Name            string        `json:"name,omitempty" validate:"required"`
+		Addr            string        `json:"addr,omitempty" validate:"required,hostname_port"`
+		ShutdownTimeout time.Duration `json:"shutdown_timeout,omitempty" validate:"required"`
+	} `json:"service,omitempty"`
 
 	Database struct {
 		Enable   bool   `json:"enable,omitempty"`
@@ -36,7 +39,7 @@ type Config struct {
 		Username string `json:"username,omitempty" validate:"required_if=Enable true"`
 		Port     int    `json:"port,omitempty" validate:"required_if=Enable true"`
 		Host     string `json:"host,omitempty" validate:"required_if=Enable true"`
-	}
+	} `json:"database,omitempty"`
 }
 
 var (
@@ -102,7 +105,7 @@ func initTracer() {
 		sdktrace.WithResource(
 			resource.NewWithAttributes(
 				semconv.SchemaURL,
-				semconv.ServiceNameKey.String(C.ServiceName),
+				semconv.ServiceNameKey.String(C.Service.Name),
 			)),
 	)
 	otel.SetTracerProvider(tp)
@@ -131,7 +134,7 @@ func WaitForExit() {
 		s := <-ch
 		log.Info("catch exit signal", slog.String("signal", s.String()))
 
-		ctx, cancel := context.WithTimeout(context.Background(), C.ShutdownTimeout)
+		ctx, cancel := context.WithTimeout(context.Background(), C.Service.ShutdownTimeout)
 		defer cancel()
 
 		var wgg sync.WaitGroup
