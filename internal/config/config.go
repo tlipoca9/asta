@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/tlipoca9/asta/pkg/functools"
+	"github.com/tlipoca9/asta/pkg/funcx"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/go-viper/mapstructure/v2"
@@ -144,13 +144,13 @@ func Shutdown() {
 				log := log.With("name", k)
 				switch fn := v.(type) {
 				case func(context.Context) error:
-					err = functools.WrapContextE(ctx, fn)
+					err = funcx.WrapContextE(ctx, fn)
 				case func(context.Context):
-					err = functools.WrapContext(ctx, fn)
+					err = funcx.WrapContext(ctx, fn)
 				case func() error:
-					err = functools.ContextE(ctx, fn)
+					err = funcx.ContextE(ctx, fn)
 				case func():
-					err = functools.Context(ctx, fn)
+					err = funcx.Context(ctx, fn)
 				default:
 					log.Warn("unknown shutdown function type, skip")
 				}
