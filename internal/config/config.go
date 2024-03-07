@@ -25,7 +25,16 @@ import (
 )
 
 type Config struct {
-	ServiceName string `json:"service_name" validate:"required"`
+	ServiceName string `json:"service_name,omitempty" validate:"required"`
+
+	Database struct {
+		Enable   bool   `json:"enable,omitempty"`
+		DBName   string `json:"db_name,omitempty" validate:"required_if=Enable true"`
+		Password string `json:"password,omitempty" validate:"required_if=Enable true"`
+		Username string `json:"username,omitempty" validate:"required_if=Enable true"`
+		Port     int    `json:"port,omitempty" validate:"required_if=Enable true"`
+		Host     string `json:"host,omitempty" validate:"required_if=Enable true"`
+	}
 }
 
 var (

@@ -25,12 +25,12 @@ type Config struct {
 	DBName   string
 	Password string
 	Username string
-	Port     string
+	Port     int
 	Host     string
 }
 
 func New(log *slog.Logger, conf Config) Service {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", conf.Username, conf.Password, conf.Host, conf.Port, conf.DBName)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", conf.Username, conf.Password, conf.Host, conf.Port, conf.DBName)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		DisableAutomaticPing: true,
 		Logger:               gormleaf.NewSlogLoggerBuilder().Logger(log).Build(),

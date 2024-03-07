@@ -1,1 +1,4 @@
 service_name = "asta"
+
+[database]
+enable = false
