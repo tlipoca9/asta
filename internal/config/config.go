@@ -129,16 +129,23 @@ func Shutdown() {
 			go func() {
 				defer wgg.Done()
 				var err error
+				log = log.With("name", k)
 				switch fn := v.(type) {
 				case func(context.Context) error:
 					err = fn(ctx)
 				case func() error:
 					err = fn()
+				case func(context.Context):
+					fn(ctx)
+				case func():
+					fn()
+				default:
+					log.Warn("unknown shutdown function type, skip")
 				}
 				if err != nil {
-					log.Error("shutdown failed", "name", k, "error", err)
+					log.Error("shutdown failed", "error", err)
 				} else {
-					log.Info("shutdown success", "name", k)
+					log.Info("shutdown success")
 				}
 			}()
 			return true
