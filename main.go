@@ -10,7 +10,7 @@ import (
 
 func main() {
 	app := &cli.App{
-		Name: "asta",
+		Name: config.C.ServiceName,
 		Commands: []*cli.Command{
 			{
 				Name: "serve",

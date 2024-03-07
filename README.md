@@ -1,6 +1,6 @@
 # asta
 
-This repository contains a basic template that you can use via gonew. This template will allow you to get started using Service Weaver more easily.
+This repository contains a basic template that you can use via gonew.
 
 ```bash
 go install golang.org/x/tools/cmd/gonew@latest
