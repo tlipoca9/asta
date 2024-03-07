@@ -120,7 +120,7 @@ func RegisterShutdown(name string, fn any) {
 	shutdowns.Store(name, fn)
 }
 
-func Shutdown() {
+func WaitForExit() {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {

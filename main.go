@@ -30,5 +30,5 @@ func main() {
 		}
 	}()
 
-	config.Shutdown()
+	config.WaitForExit()
 }
