@@ -32,12 +32,11 @@ type Config struct {
 	} `json:"service"`
 
 	Database struct {
-		Enable   bool   `json:"enable"`
 		DBName   string `json:"db_name"`
-		Password string `json:"password"`
 		Username string `json:"username"`
-		Port     int    `json:"port"`
+		Password string `json:"password"`
 		Host     string `json:"host"`
+		Port     int    `json:"port"`
 	} `json:"database"`
 }
 

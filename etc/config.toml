@@ -4,4 +4,8 @@ addr = ":8080"
 shutdown_timeout = "5s"
 
 [database]
-enable = false
+db_name = "asta"
+username = "root"
+password = "asta"
+host = "localhost"
+port = 3306

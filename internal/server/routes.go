@@ -5,19 +5,26 @@ import (
 
 	"github.com/gofiber/contrib/otelfiber"
 	"github.com/gofiber/fiber/v2"
-	"github.com/tlipoca9/asta/internal/handler"
+	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"go.opentelemetry.io/otel"
 )
 
 func (s *Server) RegisterMiddlewares() {
-	s.App.Use(otelfiber.Middleware())
+	s.App.Use(
+		healthcheck.New(healthcheck.Config{
+			LivenessProbe:     func(c *fiber.Ctx) bool { return true },
+			LivenessEndpoint:  "/healthz",
+			ReadinessProbe:    func(ctx *fiber.Ctx) bool { return s.db.Health() },
+			ReadinessEndpoint: "/readyz",
+		}),
+		otelfiber.Middleware(),
+	)
 }
 
 func (s *Server) RegisterRoutes() {
 	s.RegisterMiddlewares()
 
 	s.App.Get("/", s.HelloWorldHandler())
-	s.App.Get("/health", s.healthHandler)
 }
 
 func (s *Server) HelloWorldHandler() fiber.Handler {
@@ -32,22 +39,6 @@ func (s *Server) HelloWorldHandler() fiber.Handler {
 		log.InfoContext(ctx, "start")
 		defer log.InfoContext(ctx, "end")
 
-		h := handler.NewHealthHandler(
-			handler.NewNamedHealthier("database", s.db),
-		)
-
-		resp, _ := h.Health()
-
-		return c.JSON(resp)
+		return c.JSON(fiber.Map{"message": "Hello, World!"})
 	}
-}
-
-func (s *Server) healthHandler(c *fiber.Ctx) error {
-	h := handler.NewHealthHandler(
-		handler.NewNamedHealthier("database", s.db),
-	)
-
-	resp, _ := h.Health()
-
-	return c.JSON(resp)
 }
