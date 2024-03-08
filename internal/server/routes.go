@@ -107,8 +107,6 @@ func (s *Server) RegisterMiddlewares() {
 }
 
 func (s *Server) RegisterRoutes() {
-	s.RegisterMiddlewares()
-
 	s.App.Get("/", s.HelloWorldHandler())
 }
 
