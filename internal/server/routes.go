@@ -31,7 +31,7 @@ func (s *Server) RegisterMiddlewares() {
 	} else {
 		s.App.Use(logger.New(logger.Config{
 			// json format
-			Format:        `{"time":"${time}","ip":"${ip}","host":"${host}","method":"${method}","path":"${path}","referer":"${referer}","ua":"${ua}","status":"${status}","latency":"${latency}","error":"${error}"}`,
+			Format:        "{\"time\":\"${time}\",\"status\":\"${status}\",\"latency\":\"${latency}\",\"ip\":\"${ip}\",\"method\":\"${method}\",\"path\":\"${path}\",\"error\":\"${error}\"}\n",
 			TimeFormat:    time.RFC3339,
 			Output:        os.Stdout,
 			DisableColors: true,
