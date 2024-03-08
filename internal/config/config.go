@@ -91,7 +91,7 @@ func initTracer() {
 	if err != nil {
 		panic(err)
 	}
-	out, err := os.OpenFile("run/trace.log", os.O_WRONLY|os.O_CREATE, 0o644)
+	out, err := os.OpenFile("run/trace.log", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o644)
 	if err != nil {
 		panic(err)
 	}
