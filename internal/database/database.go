@@ -7,11 +7,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/tlipoca9/asta/internal/config"
-
 	"github.com/tlipoca9/leaf/gormleaf"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+
+	"github.com/tlipoca9/asta/internal/config"
 )
 
 var (

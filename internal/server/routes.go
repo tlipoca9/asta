@@ -9,16 +9,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gofiber/fiber/v2/middleware/requestid"
-	"github.com/oklog/ulid/v2"
-
 	"github.com/DataDog/gostackparse"
 	"github.com/gofiber/contrib/otelfiber"
-	"github.com/gofiber/fiber/v2"
+	fiber "github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/middleware/requestid"
+	ulid "github.com/oklog/ulid/v2"
+
 	"github.com/tlipoca9/asta/internal/config"
 )
 

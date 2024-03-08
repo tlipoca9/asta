@@ -3,9 +3,9 @@ package server
 import (
 	"log/slog"
 
-	"github.com/tlipoca9/asta/internal/config"
+	fiber "github.com/gofiber/fiber/v2"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/tlipoca9/asta/internal/config"
 	"github.com/tlipoca9/asta/internal/database"
 )
 

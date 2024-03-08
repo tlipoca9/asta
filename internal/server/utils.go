@@ -3,7 +3,7 @@ package server
 import (
 	"log/slog"
 
-	"github.com/gofiber/fiber/v2"
+	fiber "github.com/gofiber/fiber/v2"
 	"go.opentelemetry.io/otel/trace"
 )
 

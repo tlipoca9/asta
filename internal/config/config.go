@@ -11,21 +11,20 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/lmittmann/tint"
-	"github.com/mattn/go-colorable"
-
-	"github.com/tlipoca9/asta/pkg/funcx"
-
-	"github.com/go-viper/mapstructure/v2"
+	mapstructure "github.com/go-viper/mapstructure/v2"
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/file"
-	"github.com/knadh/koanf/v2"
+	koanf "github.com/knadh/koanf/v2"
+	"github.com/lmittmann/tint"
+	colorable "github.com/mattn/go-colorable"
 	"go.opentelemetry.io/otel"
 	stdout "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+
+	"github.com/tlipoca9/asta/pkg/funcx"
 )
 
 type Config struct {

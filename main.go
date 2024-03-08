@@ -5,9 +5,10 @@ import (
 	"log/slog"
 	"os"
 
+	cli "github.com/urfave/cli/v2"
+
 	"github.com/tlipoca9/asta/internal/config"
 	"github.com/tlipoca9/asta/internal/server"
-	"github.com/urfave/cli/v2"
 )
 
 func main() {
