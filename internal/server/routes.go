@@ -2,6 +2,12 @@ package server
 
 import (
 	"log/slog"
+	"os"
+	"time"
+
+	"github.com/tlipoca9/asta/internal/config"
+
+	"github.com/gofiber/fiber/v2/middleware/logger"
 
 	"github.com/gofiber/contrib/otelfiber"
 	"github.com/gofiber/fiber/v2"
@@ -19,6 +25,18 @@ func (s *Server) RegisterMiddlewares() {
 		}),
 		otelfiber.Middleware(),
 	)
+
+	if config.C.Service.Console {
+		s.App.Use(logger.New())
+	} else {
+		s.App.Use(logger.New(logger.Config{
+			// json format
+			Format:        `{"time":"${time}","ip":"${ip}","host":"${host}","method":"${method}","path":"${path}","referer":"${referer}","ua":"${ua}","status":"${status}","latency":"${latency}","error":"${error}"}`,
+			TimeFormat:    time.RFC3339,
+			Output:        os.Stdout,
+			DisableColors: true,
+		}))
+	}
 }
 
 func (s *Server) RegisterRoutes() {

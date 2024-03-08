@@ -2,6 +2,8 @@
 name = "asta"
 addr = ":8080"
 shutdown_timeout = "5s"
+console = true
+debug = true
 
 [database]
 db_name = "asta"

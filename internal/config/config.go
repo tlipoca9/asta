@@ -2,6 +2,7 @@ package config
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os"
@@ -9,6 +10,9 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/lmittmann/tint"
+	"github.com/mattn/go-colorable"
 
 	"github.com/tlipoca9/asta/pkg/funcx"
 
@@ -29,6 +33,8 @@ type Config struct {
 		Name            string        `json:"name"`
 		Addr            string        `json:"addr"`
 		ShutdownTimeout time.Duration `json:"shutdown_timeout"`
+		Console         bool          `json:"console"`
+		Debug           bool          `json:"debug"`
 	} `json:"service"`
 
 	Database struct {
@@ -45,14 +51,6 @@ var (
 	shutdowns sync.Map
 	C         Config
 )
-
-func initLogger() {
-	log = slog.New(slog.NewJSONHandler(
-		os.Stderr,
-		&slog.HandlerOptions{Level: slog.LevelDebug},
-	))
-	slog.SetDefault(log)
-}
 
 func initConfig() {
 	k := koanf.New(".")
@@ -75,7 +73,27 @@ func initConfig() {
 		panic(err)
 	}
 
-	log.Info("service config", "config", C)
+	b, _ := json.Marshal(C)
+	fmt.Printf("config: %s\n", string(b))
+}
+
+func initLogger() {
+	var (
+		h   slog.Handler
+		lvl slog.Level
+	)
+	if C.Service.Debug {
+		lvl = slog.LevelDebug
+	} else {
+		lvl = slog.LevelInfo
+	}
+	if C.Service.Console {
+		h = tint.NewHandler(colorable.NewColorableStderr(), &tint.Options{Level: lvl, TimeFormat: time.TimeOnly})
+	} else {
+		h = slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: lvl})
+	}
+	log = slog.New(h)
+	slog.SetDefault(log)
 }
 
 func initTracer() {
@@ -159,7 +177,7 @@ func WaitForExit(ctx context.Context) {
 }
 
 func init() {
-	initLogger()
 	initConfig()
+	initLogger()
 	initTracer()
 }
