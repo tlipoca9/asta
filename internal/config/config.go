@@ -129,7 +129,7 @@ func WaitForExit(ctx context.Context) {
 
 	select {
 	case <-ctx.Done():
-		log.Info("context done, exit", slog.String("reason", ctx.Err().Error()))
+		log.Info("context done, exit")
 	case s := <-ch:
 		log.Info("catch exit signal", slog.String("signal", s.String()))
 	}
