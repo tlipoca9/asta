@@ -12,7 +12,6 @@ import (
 
 	"github.com/tlipoca9/asta/pkg/funcx"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/file"
@@ -27,25 +26,24 @@ import (
 
 type Config struct {
 	Service struct {
-		Name            string        `json:"name,omitempty" validate:"required"`
-		Addr            string        `json:"addr,omitempty" validate:"required,hostname_port"`
-		ShutdownTimeout time.Duration `json:"shutdown_timeout,omitempty" validate:"required"`
-	} `json:"service,omitempty"`
+		Name            string        `json:"name"`
+		Addr            string        `json:"addr"`
+		ShutdownTimeout time.Duration `json:"shutdown_timeout"`
+	} `json:"service"`
 
 	Database struct {
-		Enable   bool   `json:"enable,omitempty"`
-		DBName   string `json:"db_name,omitempty" validate:"required_if=Enable true"`
-		Password string `json:"password,omitempty" validate:"required_if=Enable true"`
-		Username string `json:"username,omitempty" validate:"required_if=Enable true"`
-		Port     int    `json:"port,omitempty" validate:"required_if=Enable true"`
-		Host     string `json:"host,omitempty" validate:"required_if=Enable true"`
-	} `json:"database,omitempty"`
+		Enable   bool   `json:"enable"`
+		DBName   string `json:"db_name,omitempty"`
+		Password string `json:"password,omitempty"`
+		Username string `json:"username,omitempty"`
+		Port     int    `json:"port,omitempty"`
+		Host     string `json:"host,omitempty"`
+	} `json:"database"`
 }
 
 var (
 	log       *slog.Logger
 	shutdowns sync.Map
-	validate  = validator.New(validator.WithRequiredStructEnabled())
 	C         Config
 )
 
@@ -74,11 +72,6 @@ func initConfig() {
 			),
 		},
 	})
-	if err != nil {
-		panic(err)
-	}
-
-	err = validate.Struct(C)
 	if err != nil {
 		panic(err)
 	}
