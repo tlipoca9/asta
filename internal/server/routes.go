@@ -7,7 +7,6 @@ import (
 	"os"
 	"runtime/debug"
 	"strings"
-	"time"
 
 	"github.com/DataDog/gostackparse"
 	"github.com/gofiber/contrib/otelfiber"
@@ -63,7 +62,7 @@ func (s *Server) RegisterMiddlewares() {
 	s.App.Use(requestid.New(requestid.Config{
 		Header:     fiber.HeaderXRequestID,
 		Generator:  func() string { return ulid.Make().String() },
-		ContextKey: KeyRequestID,
+		ContextKey: fiberx.KeyRequestID,
 	}))
 
 	if config.C.Service.Debug {
@@ -78,33 +77,9 @@ func (s *Server) RegisterMiddlewares() {
 
 	// see https://docs.gofiber.io/api/middleware/logger
 	if config.C.Service.Console {
-		s.App.Use(logger.New(logger.Config{
-			Next: commonNext,
-			CustomTags: map[string]logger.LogFunc{
-				"level":      fiberx.LoggerLevelTag(),
-				"msg":        fiberx.LoggerMsgTag("access"),
-				"latency":    fiberx.LoggerLatencyTag(),
-				KeyRequestID: fiberx.LoggerRequestIDTag(KeyRequestID),
-				KeyTraceID:   fiberx.LoggerTraceIDTag(),
-				KeySpanID:    fiberx.LoggerSpanIDTag(),
-			},
-			Format: fiberx.LoggerConsoleFormat,
-		}))
+		s.App.Use(logger.New(fiberx.LoggerConfigConsole(commonNext)))
 	} else {
-		s.App.Use(logger.New(logger.Config{
-			Next: commonNext,
-			CustomTags: map[string]logger.LogFunc{
-				"level":      fiberx.LoggerLevelTag(),
-				"msg":        fiberx.LoggerMsgTag("access"),
-				"latency":    fiberx.LoggerLatencyTag(),
-				KeyRequestID: fiberx.LoggerRequestIDTag(KeyRequestID),
-				KeyTraceID:   fiberx.LoggerTraceIDTag(),
-				KeySpanID:    fiberx.LoggerSpanIDTag(),
-			},
-			Format:        fiberx.LoggerJSONFormat,
-			TimeFormat:    time.RFC3339Nano,
-			DisableColors: true,
-		}))
+		s.App.Use(logger.New(fiberx.LoggerConfigJSON(commonNext)))
 	}
 
 	// see https://docs.gofiber.io/api/middleware/favicon
