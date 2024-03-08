@@ -12,11 +12,13 @@ require (
 	github.com/knadh/koanf/v2 v2.1.0
 	github.com/lmittmann/tint v1.0.4
 	github.com/mattn/go-colorable v0.1.13
+	github.com/oklog/ulid/v2 v2.1.0
 	github.com/tlipoca9/leaf/gormleaf v0.0.0-20240301094451-d2b1bc510617
 	github.com/urfave/cli/v2 v2.27.1
 	go.opentelemetry.io/otel v1.24.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.24.0
 	go.opentelemetry.io/otel/sdk v1.24.0
+	go.opentelemetry.io/otel/trace v1.24.0
 	gorm.io/driver/mysql v1.5.4
 	gorm.io/gorm v1.25.7
 )
@@ -46,6 +48,5 @@ require (
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.opentelemetry.io/contrib v1.17.0 // indirect
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
-	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	golang.org/x/sys v0.17.0 // indirect
 )

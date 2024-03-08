@@ -20,9 +20,8 @@ func main() {
 				Name: "serve",
 				Action: func(c *cli.Context) error {
 					s := server.New()
-					s.RegisterRoutes()
 					config.RegisterShutdown("server", s.ShutdownWithContext)
-					return s.Listen(config.C.Service.Addr)
+					return s.Serve()
 				},
 			},
 		},
