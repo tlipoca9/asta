@@ -91,19 +91,6 @@ func (s *Server) RegisterMiddlewares() {
 
 		return err
 	})
-	// see https://docs.gofiber.io/api/middleware/logger
-	//if config.C.Service.Console {
-	//	s.App.Use(logger.New(logger.Config{Next: commonNext}))
-	//} else {
-	//	s.App.Use(logger.New(logger.Config{
-	//		Next: commonNext,
-	//		// json format
-	//		Format:        "{\"time\":\"${time}\",\"status\":\"${status}\",\"latency\":\"${latency}\",\"ip\":\"${ip}\",\"method\":\"${method}\",\"path\":\"${path}\",\"error\":\"${error}\"}\n",
-	//		TimeFormat:    time.RFC3339,
-	//		Output:        os.Stdout,
-	//		DisableColors: true,
-	//	}))
-	//}
 }
 
 func (s *Server) RegisterRoutes() {
