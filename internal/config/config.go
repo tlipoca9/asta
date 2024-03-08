@@ -123,49 +123,45 @@ func RegisterShutdown(name string, fn any) {
 	shutdowns.Store(name, fn)
 }
 
-func WaitForExit() {
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		ch := make(chan os.Signal, 1)
-		signal.Notify(ch, syscall.SIGINT, syscall.SIGKILL, syscall.SIGTERM)
+func WaitForExit(ctx context.Context) {
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, syscall.SIGINT, syscall.SIGKILL, syscall.SIGTERM)
 
-		s := <-ch
+	select {
+	case <-ctx.Done():
+	case s := <-ch:
 		log.Info("catch exit signal", slog.String("signal", s.String()))
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), C.Service.ShutdownTimeout)
+	defer cancel()
 
-		ctx, cancel := context.WithTimeout(context.Background(), C.Service.ShutdownTimeout)
-		defer cancel()
-
-		var wgg sync.WaitGroup
-		shutdowns.Range(func(k, v any) bool {
-			wgg.Add(1)
-			go func() {
-				defer wgg.Done()
-				var err error
-				log := log.With("name", k)
-				switch fn := v.(type) {
-				case func(context.Context) error:
-					err = funcx.WrapContextE(ctx, fn)
-				case func(context.Context):
-					err = funcx.WrapContext(ctx, fn)
-				case func() error:
-					err = funcx.ContextE(ctx, fn)
-				case func():
-					err = funcx.Context(ctx, fn)
-				default:
-					log.Warn("unknown shutdown function type, skip")
-				}
-				if err != nil {
-					log.Error("shutdown failed", "error", err)
-				} else {
-					log.Info("shutdown success")
-				}
-			}()
-			return true
-		})
-		wgg.Wait()
-	}()
+	var wg sync.WaitGroup
+	shutdowns.Range(func(k, v any) bool {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			var err error
+			log := log.With("name", k)
+			switch fn := v.(type) {
+			case func(context.Context) error:
+				err = funcx.WrapContextE(ctx, fn)
+			case func(context.Context):
+				err = funcx.WrapContext(ctx, fn)
+			case func() error:
+				err = funcx.ContextE(ctx, fn)
+			case func():
+				err = funcx.Context(ctx, fn)
+			default:
+				log.Warn("unknown shutdown function type, skip")
+			}
+			if err != nil {
+				log.Error("shutdown failed", "error", err)
+			} else {
+				log.Info("shutdown success")
+			}
+		}()
+		return true
+	})
 	wg.Wait()
 }
 

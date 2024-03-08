@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"log/slog"
 	"os"
 
 	"github.com/tlipoca9/asta/internal/config"
@@ -9,6 +11,8 @@ import (
 )
 
 func main() {
+	log := slog.Default()
+
 	app := &cli.App{
 		Name: config.C.Service.Name,
 		Commands: []*cli.Command{
@@ -17,18 +21,20 @@ func main() {
 				Action: func(c *cli.Context) error {
 					s := server.New()
 					s.RegisterRoutes()
-					config.RegisterShutdown("server", s.Shutdown)
+					config.RegisterShutdown("server", s.ShutdownWithContext)
 					return s.Listen(config.C.Service.Addr)
 				},
 			},
 		},
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
+		defer cancel()
 		if err := app.Run(os.Args); err != nil {
-			panic(err)
+			log.Error("app run failed", "error", err)
 		}
 	}()
 
-	config.WaitForExit()
+	config.WaitForExit(ctx)
 }
