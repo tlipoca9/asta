@@ -3,6 +3,7 @@ package server
 import (
 	"log/slog"
 
+	json "github.com/goccy/go-json"
 	fiber "github.com/gofiber/fiber/v2"
 
 	"github.com/tlipoca9/asta/internal/config"
@@ -18,7 +19,10 @@ type Server struct {
 
 func New() *Server {
 	server := &Server{
-		App: fiber.New(),
+		App: fiber.New(fiber.Config{
+			JSONEncoder: json.Marshal,
+			JSONDecoder: json.Unmarshal,
+		}),
 		log: slog.Default(),
 		db:  database.New(),
 	}

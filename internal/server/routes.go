@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	_ "embed"
 	"encoding/json"
 	"log/slog"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"github.com/DataDog/gostackparse"
 	"github.com/gofiber/contrib/otelfiber"
 	fiber "github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
@@ -21,6 +23,9 @@ import (
 
 	"github.com/tlipoca9/asta/internal/config"
 )
+
+//go:embed favicon.ico
+var faviconFile []byte
 
 func (s *Server) RegisterMiddlewares() {
 	commonNext := func(c *fiber.Ctx) bool {
@@ -91,6 +96,11 @@ func (s *Server) RegisterMiddlewares() {
 
 		return err
 	})
+
+	s.App.Use(favicon.New(favicon.Config{
+		Data: faviconFile,
+		URL:  "/favicon.ico",
+	}))
 }
 
 func (s *Server) RegisterRoutes() {

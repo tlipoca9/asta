@@ -5,6 +5,7 @@ go 1.22.0
 require (
 	github.com/DataDog/gostackparse v0.7.0
 	github.com/go-viper/mapstructure/v2 v2.0.0-alpha.1
+	github.com/goccy/go-json v0.10.2
 	github.com/gofiber/contrib/otelfiber v1.0.10
 	github.com/gofiber/fiber/v2 v2.52.2
 	github.com/knadh/koanf/parsers/toml v0.1.0
