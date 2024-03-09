@@ -57,7 +57,7 @@ func init() {
 	LoggerFormatJSON = buf.String()
 }
 
-func LoggerLevelTag() logger.LogFunc {
+func LoggerTagLevel() logger.LogFunc {
 	return func(output logger.Buffer, c *fiber.Ctx, data *logger.Data, extraParam string) (int, error) {
 		status := c.Response().StatusCode()
 		lvl := slog.LevelInfo
@@ -70,33 +70,33 @@ func LoggerLevelTag() logger.LogFunc {
 	}
 }
 
-func LoggerMsgTag(s string) logger.LogFunc {
+func LoggerTagMsg(s string) logger.LogFunc {
 	return func(output logger.Buffer, c *fiber.Ctx, data *logger.Data, extraParam string) (int, error) {
 		return output.WriteString(s)
 	}
 }
 
-func LoggerRequestIDTag(key string) logger.LogFunc {
+func LoggerTagRequestID(key string) logger.LogFunc {
 	return func(output logger.Buffer, c *fiber.Ctx, data *logger.Data, extraParam string) (int, error) {
 		return output.WriteString(fmt.Sprint(c.Locals(key)))
 	}
 }
 
-func LoggerTraceIDTag() logger.LogFunc {
+func LoggerTagTraceID() logger.LogFunc {
 	return func(output logger.Buffer, c *fiber.Ctx, data *logger.Data, extraParam string) (int, error) {
 		span := trace.SpanFromContext(c.UserContext())
 		return output.WriteString(span.SpanContext().TraceID().String())
 	}
 }
 
-func LoggerSpanIDTag() logger.LogFunc {
+func LoggerTagSpanID() logger.LogFunc {
 	return func(output logger.Buffer, c *fiber.Ctx, data *logger.Data, extraParam string) (int, error) {
 		span := trace.SpanFromContext(c.UserContext())
 		return output.WriteString(span.SpanContext().SpanID().String())
 	}
 }
 
-func LoggerLatencyTag() logger.LogFunc {
+func LoggerTagTagLatency() logger.LogFunc {
 	return func(output logger.Buffer, c *fiber.Ctx, data *logger.Data, extraParam string) (int, error) {
 		latency := data.Stop.Sub(data.Start)
 		return output.WriteString(latency.String())
@@ -107,11 +107,11 @@ func LoggerConfigConsole(next func(*fiber.Ctx) bool) logger.Config {
 	return logger.Config{
 		Next: next,
 		CustomTags: map[string]logger.LogFunc{
-			"level":      LoggerLevelTag(),
-			"msg":        LoggerMsgTag("access"),
-			KeyRequestID: LoggerRequestIDTag(KeyRequestID),
-			KeyTraceID:   LoggerTraceIDTag(),
-			KeySpanID:    LoggerSpanIDTag(),
+			"level":      LoggerTagLevel(),
+			"msg":        LoggerTagMsg("access"),
+			KeyRequestID: LoggerTagRequestID(KeyRequestID),
+			KeyTraceID:   LoggerTagTraceID(),
+			KeySpanID:    LoggerTagSpanID(),
 		},
 		Format: LoggerFormatConsole,
 	}
@@ -121,12 +121,12 @@ func LoggerConfigJSON(next func(*fiber.Ctx) bool) logger.Config {
 	return logger.Config{
 		Next: next,
 		CustomTags: map[string]logger.LogFunc{
-			"level":      LoggerLevelTag(),
-			"msg":        LoggerMsgTag("access"),
-			"latency":    LoggerLatencyTag(),
-			KeyRequestID: LoggerRequestIDTag(KeyRequestID),
-			KeyTraceID:   LoggerTraceIDTag(),
-			KeySpanID:    LoggerSpanIDTag(),
+			"level":      LoggerTagLevel(),
+			"msg":        LoggerTagMsg("access"),
+			"latency":    LoggerTagTagLatency(),
+			KeyRequestID: LoggerTagRequestID(KeyRequestID),
+			KeyTraceID:   LoggerTagTraceID(),
+			KeySpanID:    LoggerTagSpanID(),
 		},
 		Format:        LoggerFormatJSON,
 		TimeFormat:    time.RFC3339Nano,
