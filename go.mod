@@ -15,6 +15,7 @@ require (
 	github.com/mattn/go-colorable v0.1.13
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/prometheus/client_golang v1.19.0
+	github.com/redis/rueidis v1.0.31
 	github.com/tlipoca9/leaf/gormleaf v0.0.0-20240301094451-d2b1bc510617
 	github.com/urfave/cli/v2 v2.27.1
 	go.opentelemetry.io/otel v1.24.0

@@ -52,7 +52,7 @@ func (s *Server) RegisterMiddlewares() {
 		healthcheck.New(healthcheck.Config{
 			LivenessProbe:     func(c *fiber.Ctx) bool { return true },
 			LivenessEndpoint:  "/healthz",
-			ReadinessProbe:    func(ctx *fiber.Ctx) bool { return s.db.Health() },
+			ReadinessProbe:    func(ctx *fiber.Ctx) bool { return s.db.Health() && s.cache.Health() },
 			ReadinessEndpoint: "/readyz",
 		}),
 		otelfiber.Middleware(otelfiber.WithNext(commonNext)),

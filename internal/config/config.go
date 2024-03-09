@@ -43,6 +43,10 @@ type Config struct {
 		Host     string `json:"host"`
 		Port     int    `json:"port"`
 	} `json:"database"`
+
+	Cache struct {
+		Address string `json:"address"`
+	}
 }
 
 var (

@@ -6,6 +6,7 @@ import (
 	json "github.com/goccy/go-json"
 	fiber "github.com/gofiber/fiber/v2"
 
+	"github.com/tlipoca9/asta/internal/cache"
 	"github.com/tlipoca9/asta/internal/config"
 	"github.com/tlipoca9/asta/internal/database"
 )
@@ -13,8 +14,9 @@ import (
 type Server struct {
 	*fiber.App
 
-	log *slog.Logger
-	db  database.Service
+	log   *slog.Logger
+	db    database.Service
+	cache cache.Service
 }
 
 func New() *Server {
@@ -23,8 +25,9 @@ func New() *Server {
 			JSONEncoder: json.Marshal,
 			JSONDecoder: json.Unmarshal,
 		}),
-		log: slog.Default(),
-		db:  database.New(),
+		log:   slog.Default(),
+		db:    database.New(),
+		cache: cache.New(),
 	}
 
 	return server

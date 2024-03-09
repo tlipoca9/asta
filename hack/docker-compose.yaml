@@ -8,3 +8,8 @@ services:
       - "MYSQL_DATABASE=asta"
     ports:
       - "3306:3306"
+  cache:
+    restart: always
+    image: redis:7.2.4-alpine
+    ports:
+      - '6379:6379'

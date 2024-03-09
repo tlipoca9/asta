@@ -11,3 +11,6 @@ username = "root"
 password = "asta"
 host = "localhost"
 port = 3306
+
+[cache]
+address = "localhost:6379"
