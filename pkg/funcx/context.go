@@ -3,7 +3,7 @@ package funcx
 import "context"
 
 func Context(ctx context.Context, fn func()) error {
-	return WrapContext(ctx, func(ctx context.Context) { fn() })
+	return WrapContext(ctx, func(_ context.Context) { fn() })
 }
 
 func ContextE(ctx context.Context, fn func() error) error {

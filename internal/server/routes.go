@@ -2,8 +2,8 @@ package server
 
 import (
 	"bytes"
-	_ "embed"
 	"encoding/json"
+	"fmt"
 	"os"
 	"runtime/debug"
 	"strings"
@@ -24,6 +24,8 @@ import (
 
 	"github.com/tlipoca9/asta/internal/config"
 	"github.com/tlipoca9/asta/pkg/fiberx"
+
+	_ "embed"
 )
 
 //go:embed favicon.ico
@@ -40,8 +42,9 @@ func (s *Server) RegisterMiddlewares() {
 	} else {
 		s.App.Use(recover.New(recover.Config{
 			EnableStackTrace: true,
-			StackTraceHandler: func(c *fiber.Ctx, e interface{}) {
+			StackTraceHandler: func(_ *fiber.Ctx, e any) {
 				goroutines, _ := gostackparse.Parse(bytes.NewReader(debug.Stack()))
+				_, _ = fmt.Fprintln(os.Stderr, e)
 				_ = json.NewEncoder(os.Stderr).Encode(goroutines)
 			},
 		}))
@@ -50,9 +53,9 @@ func (s *Server) RegisterMiddlewares() {
 	// see https://docs.gofiber.io/api/middleware/healthcheck
 	s.App.Use(
 		healthcheck.New(healthcheck.Config{
-			LivenessProbe:     func(c *fiber.Ctx) bool { return true },
+			LivenessProbe:     func(_ *fiber.Ctx) bool { return true },
 			LivenessEndpoint:  "/healthz",
-			ReadinessProbe:    func(ctx *fiber.Ctx) bool { return s.db.Health() && s.cache.Health() },
+			ReadinessProbe:    func(_ *fiber.Ctx) bool { return s.db.Health() && s.cache.Health() },
 			ReadinessEndpoint: "/readyz",
 		}),
 		otelfiber.Middleware(otelfiber.WithNext(commonNext)),

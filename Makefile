@@ -3,17 +3,9 @@ serve: lint
 	go build -o asta && ./asta serve
 
 .PHONY: lint
-lint: fmt
-	golangci-lint run -v ./...
-
-.PHONY: fmt
-fmt: tidy
-	goimports -l -w -local github.com/tlipoca9/asta .
-	gofumpt -l -w .
-
-.PHONY: tidy
-tidy:
+lint:
 	go mod tidy
+	golangci-lint run --fix ./...
 
 .PHONY: docker-compose-up
 docker-compose-up:

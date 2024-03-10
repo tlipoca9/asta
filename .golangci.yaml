@@ -1,0 +1,30 @@
+run:
+  timeout: 5m
+
+linters-settings:
+  gofmt:
+    simplify: true
+    rewrite-rules:
+      - pattern: 'interface{}'
+        replacement: 'any'
+  goimports:
+    local-prefixes: github.com/tlipoca9/asta
+  gci:
+    custom-order: true
+    sections:
+      - standard
+      - default
+      - prefix(github.com/tlipoca9/asta)
+      - blank
+      - dot
+  nestif:
+    min-complexity: 3
+
+linters:
+  enable:
+    - gofmt
+    - goimports
+    - gci
+    - funlen
+    - revive
+    - nestif

@@ -19,7 +19,7 @@ func main() {
 		Commands: []*cli.Command{
 			{
 				Name: "serve",
-				Action: func(c *cli.Context) error {
+				Action: func(_ *cli.Context) error {
 					s := server.New()
 					config.RegisterShutdown("server", s.ShutdownWithContext)
 					return s.Serve()

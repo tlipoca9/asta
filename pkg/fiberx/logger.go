@@ -58,7 +58,7 @@ func init() {
 }
 
 func LoggerTagLevel() logger.LogFunc {
-	return func(output logger.Buffer, c *fiber.Ctx, data *logger.Data, extraParam string) (int, error) {
+	return func(output logger.Buffer, c *fiber.Ctx, _ *logger.Data, _ string) (int, error) {
 		status := c.Response().StatusCode()
 		lvl := slog.LevelInfo
 		if status >= fiber.StatusInternalServerError {
@@ -71,33 +71,33 @@ func LoggerTagLevel() logger.LogFunc {
 }
 
 func LoggerTagMsg(s string) logger.LogFunc {
-	return func(output logger.Buffer, c *fiber.Ctx, data *logger.Data, extraParam string) (int, error) {
+	return func(output logger.Buffer, _ *fiber.Ctx, _ *logger.Data, _ string) (int, error) {
 		return output.WriteString(s)
 	}
 }
 
 func LoggerTagRequestID(key string) logger.LogFunc {
-	return func(output logger.Buffer, c *fiber.Ctx, data *logger.Data, extraParam string) (int, error) {
+	return func(output logger.Buffer, c *fiber.Ctx, _ *logger.Data, _ string) (int, error) {
 		return output.WriteString(fmt.Sprint(c.Locals(key)))
 	}
 }
 
 func LoggerTagTraceID() logger.LogFunc {
-	return func(output logger.Buffer, c *fiber.Ctx, data *logger.Data, extraParam string) (int, error) {
+	return func(output logger.Buffer, c *fiber.Ctx, _ *logger.Data, _ string) (int, error) {
 		span := trace.SpanFromContext(c.UserContext())
 		return output.WriteString(span.SpanContext().TraceID().String())
 	}
 }
 
 func LoggerTagSpanID() logger.LogFunc {
-	return func(output logger.Buffer, c *fiber.Ctx, data *logger.Data, extraParam string) (int, error) {
+	return func(output logger.Buffer, c *fiber.Ctx, _ *logger.Data, _ string) (int, error) {
 		span := trace.SpanFromContext(c.UserContext())
 		return output.WriteString(span.SpanContext().SpanID().String())
 	}
 }
 
 func LoggerTagTagLatency() logger.LogFunc {
-	return func(output logger.Buffer, c *fiber.Ctx, data *logger.Data, extraParam string) (int, error) {
+	return func(output logger.Buffer, _ *fiber.Ctx, data *logger.Data, _ string) (int, error) {
 		latency := data.Stop.Sub(data.Start)
 		return output.WriteString(latency.String())
 	}
