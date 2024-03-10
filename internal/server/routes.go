@@ -10,7 +10,7 @@ import (
 
 	"github.com/DataDog/gostackparse"
 	"github.com/gofiber/contrib/otelfiber"
-	fiber "github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/gofiber/fiber/v2/middleware/favicon"
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
@@ -19,7 +19,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
-	ulid "github.com/oklog/ulid/v2"
+	"github.com/oklog/ulid/v2"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/tlipoca9/asta/internal/config"

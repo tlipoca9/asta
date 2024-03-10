@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	json "github.com/goccy/go-json"
-	fiber "github.com/gofiber/fiber/v2"
+	"github.com/goccy/go-json"
+	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"go.opentelemetry.io/otel/trace"
 )

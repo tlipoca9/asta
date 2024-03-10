@@ -1,10 +1,14 @@
 .PHONY: serve
-serve: fmt
+serve: lint
 	go build -o asta && ./asta serve
+
+.PHONY: lint
+lint: fmt
+	golangci-lint run -v ./...
 
 .PHONY: fmt
 fmt: tidy
-	goimports-reviser -set-alias -format -project-name github.com/tlipoca9/asta ./...
+	goimports -l -w -local github.com/tlipoca9/asta .
 	gofumpt -l -w .
 
 .PHONY: tidy

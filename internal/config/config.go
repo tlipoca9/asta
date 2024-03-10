@@ -11,12 +11,12 @@ import (
 	"syscall"
 	"time"
 
-	mapstructure "github.com/go-viper/mapstructure/v2"
+	"github.com/go-viper/mapstructure/v2"
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/file"
-	koanf "github.com/knadh/koanf/v2"
+	"github.com/knadh/koanf/v2"
 	"github.com/lmittmann/tint"
-	colorable "github.com/mattn/go-colorable"
+	"github.com/mattn/go-colorable"
 	"go.opentelemetry.io/otel"
 	stdout "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
@@ -138,7 +138,7 @@ func RegisterShutdown(name string, fn any) {
 
 func WaitForExit(ctx context.Context) {
 	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGINT, syscall.SIGKILL, syscall.SIGTERM)
+	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 
 	select {
 	case <-ctx.Done():

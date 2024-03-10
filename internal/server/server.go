@@ -3,8 +3,8 @@ package server
 import (
 	"log/slog"
 
-	json "github.com/goccy/go-json"
-	fiber "github.com/gofiber/fiber/v2"
+	"github.com/goccy/go-json"
+	"github.com/gofiber/fiber/v2"
 
 	"github.com/tlipoca9/asta/internal/cache"
 	"github.com/tlipoca9/asta/internal/config"

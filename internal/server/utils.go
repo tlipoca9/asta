@@ -3,7 +3,7 @@ package server
 import (
 	"log/slog"
 
-	fiber "github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2"
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/tlipoca9/asta/pkg/fiberx"
