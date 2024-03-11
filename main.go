@@ -20,9 +20,7 @@ func main() {
 			{
 				Name: "serve",
 				Action: func(_ *cli.Context) error {
-					s := server.New()
-					config.RegisterShutdown("server", s.ShutdownWithContext)
-					return s.Serve()
+					return server.Serve()
 				},
 			},
 		},

@@ -11,6 +11,14 @@ import (
 	"github.com/tlipoca9/asta/internal/database"
 )
 
+func Serve() error {
+	s := newServer()
+	s.RegisterMiddlewares()
+	s.RegisterRoutes()
+	config.RegisterShutdown("server", s.ShutdownWithContext)
+	return s.Serve()
+}
+
 type Server struct {
 	*fiber.App
 
@@ -19,7 +27,7 @@ type Server struct {
 	cache cache.Service
 }
 
-func New() *Server {
+func newServer() *Server {
 	server := &Server{
 		App: fiber.New(fiber.Config{
 			JSONEncoder: json.Marshal,
