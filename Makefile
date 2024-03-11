@@ -4,6 +4,7 @@ serve: lint
 
 .PHONY: lint
 lint:
+	go generate ./...
 	go mod tidy
 	golangci-lint run --fix ./...
 
