@@ -10,25 +10,43 @@ import (
 	"github.com/goccy/go-json"
 )
 
-type ctxKey int
+type ContextKey int
 
-const argsKey ctxKey = 1
+//go:generate stringer -type=ContextKey -output=contextkey.gen.go -linecomment
+const (
+	ContextKeyAttrs ContextKey = iota + 1 // attrs
+)
 
-func AddToContext(ctx context.Context, args ...slog.Attr) context.Context {
-	if len(args) == 0 {
-		return ctx
-	}
-	attrs := ContextAttrs(ctx)
-	attrs = append(attrs, args...)
-	return context.WithValue(ctx, argsKey, attrs)
+type ContextHandler struct {
+	slog.Handler
 }
 
-func ContextAttrs(ctx context.Context) []slog.Attr {
-	attrs, ok := ctx.Value(argsKey).([]slog.Attr)
-	if !ok {
-		return nil
+func NewContextHandler(h slog.Handler) slog.Handler {
+	return ContextHandler{Handler: h}
+}
+
+// Handle adds contextual attributes to the Record before calling the underlying
+// handler
+func (h ContextHandler) Handle(ctx context.Context, r slog.Record) error {
+	if attrs, ok := ctx.Value(ContextKeyAttrs).([]slog.Attr); ok {
+		r.AddAttrs(attrs...)
 	}
-	return attrs
+
+	return h.Handler.Handle(ctx, r)
+}
+
+// AppendCtx adds a slog attribute to the provided context so that it will be
+// included in any Record created with such context
+func AppendCtx(parent context.Context, attr ...slog.Attr) context.Context {
+	if parent == nil {
+		parent = context.Background()
+	}
+
+	if v, ok := parent.Value(ContextKeyAttrs).([]slog.Attr); ok {
+		return context.WithValue(parent, ContextKeyAttrs, append(v, attr...))
+	}
+
+	return context.WithValue(parent, ContextKeyAttrs, attr)
 }
 
 func JSON(key string, val any) slog.Attr {

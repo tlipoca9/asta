@@ -128,7 +128,7 @@ func initLogger() {
 			ReplaceAttr: replacer,
 		})
 	}
-	log = slog.New(h)
+	log = slog.New(logx.NewContextHandler(h))
 	slog.SetDefault(log)
 }
 

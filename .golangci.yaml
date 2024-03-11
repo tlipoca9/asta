@@ -4,8 +4,6 @@ run:
 linters-settings:
   dupl:
     threshold: 100
-  funlen:
-    statements: 50
   gci:
     custom-order: true
     sections:
@@ -38,6 +36,7 @@ linters-settings:
       - errors\..*\(
       - context\..*Err\(
       - github\.com/gofiber/fiber/v2.*\(
+      - log/slog.*\(
     ignorePackageGlobs:
       - github.com/tlipoca9/asta/*
 
@@ -46,7 +45,6 @@ linters:
     - asasalint
     - dupl
     - errcheck
-    - funlen
     - gci
     - gocognit
     - goconst

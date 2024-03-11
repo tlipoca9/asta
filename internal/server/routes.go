@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"runtime/debug"
 	"strings"
@@ -21,9 +22,11 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/oklog/ulid/v2"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/tlipoca9/asta/internal/config"
 	"github.com/tlipoca9/asta/pkg/fiberx"
+	"github.com/tlipoca9/asta/pkg/logx"
 
 	_ "embed"
 )
@@ -68,6 +71,18 @@ func (s *Server) RegisterMiddlewares() {
 		ContextKey: fiberx.ContextKeyRequestID,
 	}))
 
+	s.App.Use(func(c *fiber.Ctx) error {
+		ctx, span := c.UserContext(), trace.SpanFromContext(c.UserContext())
+		ctx = logx.AppendCtx(
+			ctx,
+			slog.Any(fiberx.ContextKeyRequestID.String(), c.Locals(fiberx.ContextKeyRequestID)),
+			slog.String(fiberx.ContextKeyTraceID.String(), span.SpanContext().TraceID().String()),
+			slog.String(fiberx.ContextKeySpanID.String(), span.SpanContext().SpanID().String()),
+		)
+		c.SetUserContext(ctx)
+		return c.Next()
+	})
+
 	if config.C.Service.Debug {
 		// see https://docs.gofiber.io/api/middleware/monitor
 		s.App.Get("/debug/metrics/ui", monitor.New())
@@ -98,10 +113,10 @@ func (s *Server) RegisterRoutes() {
 
 func (s *Server) HelloWorldHandler() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, log := c.UserContext(), s.initLogger(c)
+		ctx := c.UserContext()
 
-		log.InfoContext(ctx, "start")
-		defer log.InfoContext(ctx, "end")
+		s.log.InfoContext(ctx, "start")
+		defer s.log.InfoContext(ctx, "end")
 
 		return c.JSON(fiber.Map{"message": "Hello, World!", "key": c.OriginalURL(), "query": c.Queries()})
 	}
