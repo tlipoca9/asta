@@ -52,7 +52,14 @@ func New() Service {
 }
 
 func newService(log *slog.Logger, conf Config) Service {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", conf.Username, conf.Password, conf.Host, conf.Port, conf.DBName)
+	dsn := fmt.Sprintf(
+		"%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		conf.Username,
+		conf.Password,
+		conf.Host,
+		conf.Port,
+		conf.DBName,
+	)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: gormleaf.NewSlogLoggerBuilder().Logger(log).Build(),
 	})

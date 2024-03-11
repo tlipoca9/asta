@@ -17,6 +17,7 @@ import (
 	"github.com/knadh/koanf/v2"
 	"github.com/lmittmann/tint"
 	"github.com/mattn/go-colorable"
+	"github.com/tlipoca9/errors"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
@@ -78,6 +79,13 @@ func initConfig() {
 
 	b, _ := json.Marshal(C)
 	fmt.Printf("config: %s\n", string(b))
+}
+
+func initErrors() {
+	if !C.Service.Console {
+		errors.C.Style = errors.StyleStack
+		errors.C.StackFramesHandler = errors.JSONStackFramesHandler
+	}
 }
 
 func initLogger() {
@@ -181,6 +189,7 @@ func WaitForExit(ctx context.Context) {
 
 func init() {
 	initConfig()
+	initErrors()
 	initLogger()
 	initTracer()
 }

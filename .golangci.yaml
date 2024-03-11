@@ -2,13 +2,10 @@ run:
   timeout: 5m
 
 linters-settings:
-  gofmt:
-    simplify: true
-    rewrite-rules:
-      - pattern: 'interface{}'
-        replacement: 'any'
-  goimports:
-    local-prefixes: github.com/tlipoca9/asta
+  dupl:
+    threshold: 100
+  funlen:
+    statements: 50
   gci:
     custom-order: true
     sections:
@@ -17,14 +14,56 @@ linters-settings:
       - prefix(github.com/tlipoca9/asta)
       - blank
       - dot
-  nestif:
-    min-complexity: 3
+  gocognit:
+    min-complexity: 20
+  gocyclo:
+    min-complexity: 20
+  gofmt:
+    simplify: true
+    rewrite-rules:
+      - pattern: 'interface{}'
+        replacement: 'any'
+  goimports:
+    local-prefixes: github.com/tlipoca9/asta
+  tagliatelle:
+    case:
+      use-field-name: true
+      rules:
+        json: snake
+        yaml: snake
+        toml: snake
+        mapstructure: snake
+  wrapcheck:
+    ignoreSigRegexps:
+      - errors\..*\(
+      - context\..*Err\(
+      - github\.com/gofiber/fiber/v2.*\(
+    ignorePackageGlobs:
+      - github.com/tlipoca9/asta/*
 
 linters:
   enable:
+    - asasalint
+    - dupl
+    - errcheck
+    - funlen
+    - gci
+    - gocognit
+    - goconst
+    - gocyclo
     - gofmt
     - goimports
-    - gci
-    - funlen
+    - gosimple
+    - gosec
+    - govet
+    - lll
     - revive
-    - nestif
+    - sloglint
+    - staticcheck
+    - stylecheck
+    - tagalign
+    - tagliatelle
+    - usestdlibvars
+    - unconvert
+    - unused
+    - wrapcheck

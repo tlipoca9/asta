@@ -9,6 +9,7 @@ import (
 
 	"github.com/tlipoca9/asta/internal/config"
 	"github.com/tlipoca9/asta/internal/server"
+	"github.com/tlipoca9/asta/pkg/logx"
 )
 
 func main() {
@@ -30,7 +31,7 @@ func main() {
 	go func() {
 		defer cancel()
 		if err := app.Run(os.Args); err != nil {
-			log.Error("app run failed", "error", err)
+			log.Error("app run failed", logx.JSON("error", err))
 		}
 	}()
 

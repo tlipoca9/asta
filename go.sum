@@ -90,6 +90,8 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
+github.com/tlipoca9/errors v0.0.1 h1:kgmKmZlwfqNCR2LNtdNO1x6oyKadYFd4R6p9fVsHCkU=
+github.com/tlipoca9/errors v0.0.1/go.mod h1:8k0mS+gC/g8W5FT0VQ9NBuqtUcWCMFBN/WJ+qdJpMyM=
 github.com/tlipoca9/leaf/gormleaf v0.0.0-20240301094451-d2b1bc510617 h1:obkZ3bFr/aB7Gr1Kyol0zmC3C4RIIsb7duk8Lm9ZCEc=
 github.com/tlipoca9/leaf/gormleaf v0.0.0-20240301094451-d2b1bc510617/go.mod h1:ofUCemooTXAGMaVUZThs89r/Z1FSKuDbUQT/ApSKuCs=
 github.com/urfave/cli/v2 v2.27.1 h1:8xSQ6szndafKVRmfyeUMxkNUJQMjL1F2zmsZ+qHpfho=

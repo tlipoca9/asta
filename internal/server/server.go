@@ -5,6 +5,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
+	"github.com/tlipoca9/errors"
 
 	"github.com/tlipoca9/asta/internal/cache"
 	"github.com/tlipoca9/asta/internal/config"
@@ -16,7 +17,7 @@ func Serve() error {
 	s.RegisterMiddlewares()
 	s.RegisterRoutes()
 	config.RegisterShutdown("server", s.ShutdownWithContext)
-	return s.Serve()
+	return errors.Wrap(s.Serve(), "start server failed")
 }
 
 type Server struct {

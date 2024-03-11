@@ -1,6 +1,6 @@
 .PHONY: serve
 serve: lint
-	go build -o asta && ./asta serve
+	go build -o run/asta && run/asta serve
 
 .PHONY: lint
 lint:
