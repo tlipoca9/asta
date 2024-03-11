@@ -65,7 +65,7 @@ func (s *Server) RegisterMiddlewares() {
 	s.App.Use(requestid.New(requestid.Config{
 		Header:     fiber.HeaderXRequestID,
 		Generator:  func() string { return ulid.Make().String() },
-		ContextKey: fiberx.KeyRequestID,
+		ContextKey: fiberx.ContextKeyRequestID,
 	}))
 
 	if config.C.Service.Debug {

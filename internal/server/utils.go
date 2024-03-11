@@ -12,9 +12,9 @@ import (
 func (s *Server) initLogger(c *fiber.Ctx) *slog.Logger {
 	span := trace.SpanFromContext(c.UserContext())
 	log := s.log.With(
-		slog.Any(fiberx.KeyRequestID, c.Locals(fiberx.KeyRequestID)),
-		slog.String(fiberx.KeyTraceID, span.SpanContext().TraceID().String()),
-		slog.String(fiberx.KeySpanID, span.SpanContext().SpanID().String()),
+		slog.Any(fiberx.ContextKeyRequestID.String(), c.Locals(fiberx.ContextKeyRequestID)),
+		slog.String(fiberx.ContextKeyTraceID.String(), span.SpanContext().TraceID().String()),
+		slog.String(fiberx.ContextKeySpanID.String(), span.SpanContext().SpanID().String()),
 	)
 	return log
 }

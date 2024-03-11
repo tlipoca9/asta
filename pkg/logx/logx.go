@@ -32,22 +32,24 @@ func ContextAttrs(ctx context.Context) []slog.Attr {
 }
 
 func JSON(key string, val any) slog.Attr {
-	var (
-		buf []byte
-		ret = make([]map[string]any, 0)
-	)
-	switch v := val.(type) {
-	case string:
-		buf = []byte(v)
-	case []byte:
-		buf = v
-	case error:
-		buf = []byte(v.Error())
-	default:
-		return slog.Any(key, val)
-	}
-	if err := json.Unmarshal(buf, &ret); err != nil {
-		return slog.Any(key, val)
+	ret := make([]map[string]any, 0)
+	if v, ok := val.([]map[string]any); ok {
+		ret = v
+	} else {
+		var buf []byte
+		switch v := val.(type) {
+		case string:
+			buf = []byte(v)
+		case []byte:
+			buf = v
+		case error:
+			buf = []byte(v.Error())
+		default:
+			return slog.Any(key, val)
+		}
+		if err := json.Unmarshal(buf, &ret); err != nil {
+			return slog.Any(key, val)
+		}
 	}
 
 	var collect func(string, any) slog.Attr

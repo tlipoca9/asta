@@ -26,6 +26,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 
 	"github.com/tlipoca9/asta/pkg/funcx"
+	"github.com/tlipoca9/asta/pkg/logx"
 )
 
 type Config struct {
@@ -82,16 +83,33 @@ func initConfig() {
 }
 
 func initErrors() {
-	if !C.Service.Console {
-		errors.C.Style = errors.StyleStack
-		errors.C.StackFramesHandler = errors.JSONStackFramesHandler
-	}
+	errors.C.Style = errors.StyleStack
+	errors.C.StackFramesHandler = errors.JSONStackFramesHandler
 }
 
 func initLogger() {
 	var (
-		h   slog.Handler
-		lvl slog.Level
+		h        slog.Handler
+		lvl      slog.Level
+		replacer = func(_ []string, a slog.Attr) slog.Attr {
+			if a.Key == "error" || a.Key == "err" {
+				return logx.JSON(a.Key, a.Value.Any())
+			}
+
+			if v, ok := a.Value.Any().(map[string]any); ok {
+				return logx.JSON(a.Key, v)
+			}
+
+			if v, ok := a.Value.Any().([]map[string]any); ok {
+				return logx.JSON(a.Key, v)
+			}
+
+			if v, ok := a.Value.Any().([]any); ok {
+				return logx.JSON(a.Key, v)
+			}
+
+			return a
+		}
 	)
 	if C.Service.Debug {
 		lvl = slog.LevelDebug
@@ -99,9 +117,16 @@ func initLogger() {
 		lvl = slog.LevelInfo
 	}
 	if C.Service.Console {
-		h = tint.NewHandler(colorable.NewColorableStderr(), &tint.Options{Level: lvl, TimeFormat: time.TimeOnly})
+		h = tint.NewHandler(colorable.NewColorableStderr(), &tint.Options{
+			Level:       lvl,
+			TimeFormat:  time.TimeOnly,
+			ReplaceAttr: replacer,
+		})
 	} else {
-		h = slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: lvl})
+		h = slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
+			Level:       lvl,
+			ReplaceAttr: replacer,
+		})
 	}
 	log = slog.New(h)
 	slog.SetDefault(log)

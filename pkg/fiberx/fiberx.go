@@ -1,7 +1,10 @@
 package fiberx
 
+type ContextKey int
+
+//go:generate stringer -type=ContextKey -output=contextkey.gen.go -linecomment
 const (
-	KeyRequestID = "request_id"
-	KeyTraceID   = "trace_id"
-	KeySpanID    = "span_id"
+	ContextKeyRequestID ContextKey = iota + 1 // request_id
+	ContextKeyTraceID                         // trace_id
+	ContextKeySpanID                          // span_id
 )
