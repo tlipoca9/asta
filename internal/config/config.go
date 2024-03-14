@@ -38,6 +38,10 @@ type Config struct {
 		Debug           bool          `json:"debug"`
 	} `json:"service"`
 
+	Otel struct {
+		CollectorEndpoint string `json:"collector_endpoint"`
+	} `json:"otel"`
+
 	Database struct {
 		DBName   string `json:"db_name"`
 		Username string `json:"username"`
@@ -127,29 +131,37 @@ func initLogger() {
 }
 
 func initTracer() {
-	err := os.MkdirAll("run", 0o750)
-	if err != nil {
-		panic(err)
+	var tp *trace.TracerProvider
+	switch {
+	case C.Otel.CollectorEndpoint != "":
+		// TODO: implement collector endpoint
+		panic("not implemented")
+	default:
+		err := os.MkdirAll("run", 0o750)
+		if err != nil {
+			panic(err)
+		}
+		out, err := os.OpenFile("run/trace.log", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o644)
+		if err != nil {
+			panic(err)
+		}
+		exporter, err := stdouttrace.New(stdouttrace.WithWriter(out))
+		if err != nil {
+			panic(err)
+		}
+		tp = trace.NewTracerProvider(
+			trace.WithSampler(trace.AlwaysSample()),
+			trace.WithBatcher(exporter),
+			trace.WithResource(
+				resource.NewWithAttributes(
+					semconv.SchemaURL,
+					semconv.ServiceNameKey.String(C.Service.Name),
+				),
+			),
+		)
+		otel.SetTracerProvider(tp)
+		otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	}
-	out, err := os.OpenFile("run/trace.log", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o644)
-	if err != nil {
-		panic(err)
-	}
-	exporter, err := stdouttrace.New(stdouttrace.WithWriter(out))
-	if err != nil {
-		panic(err)
-	}
-	tp := trace.NewTracerProvider(
-		trace.WithSampler(trace.AlwaysSample()),
-		trace.WithBatcher(exporter),
-		trace.WithResource(
-			resource.NewWithAttributes(
-				semconv.SchemaURL,
-				semconv.ServiceNameKey.String(C.Service.Name),
-			)),
-	)
-	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 
 	DeferShutdown("tracer-provider", tp.Shutdown)
 }
