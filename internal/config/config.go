@@ -160,7 +160,10 @@ func initTracer() {
 			),
 		)
 		otel.SetTracerProvider(tp)
-		otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+		otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+			propagation.TraceContext{},
+			propagation.Baggage{},
+		))
 	}
 
 	DeferShutdown("tracer-provider", tp.Shutdown)
