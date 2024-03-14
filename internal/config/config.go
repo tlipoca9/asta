@@ -24,6 +24,11 @@ import (
 	"github.com/tlipoca9/asta/pkg/logx"
 )
 
+var (
+	C   Config
+	log *slog.Logger
+)
+
 type Config struct {
 	Service struct {
 		Name            string        `json:"name"`
@@ -45,11 +50,6 @@ type Config struct {
 		Address string `json:"address"`
 	}
 }
-
-var (
-	log *slog.Logger
-	C   Config
-)
 
 func initConfig() {
 	k := koanf.New(".")
