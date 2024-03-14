@@ -17,7 +17,7 @@ func Serve() error {
 	s.RegisterMiddlewares()
 	s.RegisterRoutes()
 	config.DeferShutdown("server", s.ShutdownWithContext)
-	return errors.Wrap(s.Serve(), "start server failed")
+	return errors.Wrap(s.Serve(config.C.Service.Addr), "start server failed")
 }
 
 type Server struct {
@@ -42,8 +42,8 @@ func newServer() *Server {
 	return server
 }
 
-func (s *Server) Serve() error {
+func (s *Server) Serve(addr string) error {
 	s.RegisterMiddlewares()
 	s.RegisterRoutes()
-	return s.Listen(config.C.Service.Addr)
+	return s.Listen(addr)
 }
