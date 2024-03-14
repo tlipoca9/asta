@@ -45,6 +45,7 @@ func newService(log *slog.Logger, conf Config) Service {
 	if err != nil {
 		panic(err)
 	}
+	config.DeferShutdown("cache", cli.Close)
 
 	s := &service{
 		log:    log,

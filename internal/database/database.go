@@ -66,6 +66,11 @@ func newService(log *slog.Logger, conf Config) Service {
 	if err != nil {
 		panic(err)
 	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		panic(err)
+	}
+	config.DeferShutdown("database", sqlDB.Close)
 
 	s := &service{
 		log: log,

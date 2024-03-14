@@ -16,7 +16,7 @@ func Serve() error {
 	s := newServer()
 	s.RegisterMiddlewares()
 	s.RegisterRoutes()
-	config.RegisterShutdown("server", s.ShutdownWithContext)
+	config.DeferShutdown("server", s.ShutdownWithContext)
 	return errors.Wrap(s.Serve(), "start server failed")
 }
 

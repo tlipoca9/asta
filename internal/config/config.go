@@ -1,14 +1,10 @@
 package config
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os"
-	"os/signal"
-	"sync"
-	"syscall"
 	"time"
 
 	"github.com/go-viper/mapstructure/v2"
@@ -25,7 +21,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 
-	"github.com/tlipoca9/asta/pkg/funcx"
 	"github.com/tlipoca9/asta/pkg/logx"
 )
 
@@ -52,9 +47,8 @@ type Config struct {
 }
 
 var (
-	log       *slog.Logger
-	shutdowns sync.Map
-	C         Config
+	log *slog.Logger
+	C   Config
 )
 
 func initConfig() {
@@ -157,59 +151,7 @@ func initTracer() {
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 
-	RegisterShutdown("tracer-provider", tp.Shutdown)
-}
-
-func RegisterShutdown(name string, fn any) {
-	_, found := shutdowns.Load(name)
-	for found {
-		name = fmt.Sprintf("%s-%d", name, time.Now().Unix())
-		_, found = shutdowns.Load(name)
-	}
-	shutdowns.Store(name, fn)
-}
-
-func WaitForExit(ctx context.Context) {
-	ch := make(chan os.Signal, 1)
-	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-
-	select {
-	case <-ctx.Done():
-		log.Info("context done, exit")
-	case s := <-ch:
-		log.Info("catch exit signal", slog.String("signal", s.String()))
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), C.Service.ShutdownTimeout)
-	defer cancel()
-
-	var wg sync.WaitGroup
-	shutdowns.Range(func(k, v any) bool {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			var err error
-			log := log.With("name", k)
-			switch fn := v.(type) {
-			case func(context.Context) error:
-				err = funcx.WrapContextE(ctx, fn)
-			case func(context.Context):
-				err = funcx.WrapContext(ctx, fn)
-			case func() error:
-				err = funcx.ContextE(ctx, fn)
-			case func():
-				err = funcx.Context(ctx, fn)
-			default:
-				log.Warn("unknown shutdown function type, skip")
-			}
-			if err != nil {
-				log.Error("shutdown failed", "error", err)
-			} else {
-				log.Info("shutdown success")
-			}
-		}()
-		return true
-	})
-	wg.Wait()
+	DeferShutdown("tracer-provider", tp.Shutdown)
 }
 
 func init() {
