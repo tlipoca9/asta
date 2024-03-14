@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"path"
 	"runtime"
 	"sync"
 	"syscall"
@@ -33,7 +34,7 @@ func DeferShutdown(name string, fn any) {
 		frame = &f
 	}
 	if frame != nil {
-		name = fmt.Sprintf("%s(%s:%d => %s())", name, frame.File, frame.Line, frame.Function)
+		name = fmt.Sprintf("%s(%s:%d => %s())", name, frame.File, frame.Line, path.Base(frame.Function))
 	}
 	// check if name already exists
 	for _, ok := defaultShutdownNames[name]; ok; _, ok = defaultShutdownNames[name] {
