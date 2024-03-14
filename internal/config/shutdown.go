@@ -25,7 +25,7 @@ var (
 func DeferShutdown(name string, fn any) {
 	// get caller
 	var frame *runtime.Frame
-	callers := make([]uintptr, 64)
+	callers := make([]uintptr, 3)
 	length := runtime.Callers(2, callers[:])
 	callers = callers[:length]
 	runtimeFrames := runtime.CallersFrames(callers)
